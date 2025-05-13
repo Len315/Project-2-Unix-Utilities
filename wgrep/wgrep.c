@@ -1,0 +1,54 @@
+/*
+Sources: 
+getline usage: https://man7.org/linux/man-pages/man3/getline.3.html
+AI usage: This code is commented using Copilot-style comments, and has been edited and added by the creator based on those suggestions.
+*/
+
+// A simplified version of the UNIX 'grep' command.
+// Searches for a user specified term in one or more files or standard input, 
+// prints lines containing the search term.
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Error messages
+#define ERROR_OPEN_FILE "wgrep: cannot open file\n"
+#define ERROR_NO_ARGUMENTS "wgrep: searchterm [file ...]\n"
+
+void searchInFile(const char *pSearchterm, FILE *file){
+  char *pLine = NULL;
+  size_t len = 0;
+
+  // Read each line from the file
+  while(getline(&pLine, &len, file) != -1){
+    if(strstr(pLine, pSearchterm) != NULL){// Check if the search term exists in the line
+      printf("%s", pLine);
+    }
+  }
+  free(pLine);
+}
+
+int main(int argc, char *argv[]){
+  char *pSearchterm = argv[1];
+  FILE *file = stdin;
+
+  if(argc < 2){// If no arguments are provided, print usage and exit
+    fprintf(stdout, ERROR_NO_ARGUMENTS);
+    exit(1);
+  }if(argc == 2){// If no files are specified, read from standard input
+    searchInFile(pSearchterm, file);
+  }if(argc > 2){// Else, read from the specified files
+    // Iterate through each file specified on the command line
+    for(int i = 2; i < argc; i++){
+      file = fopen(argv[i], "r");
+      if(!file){// Print error message and exit if the file cannot be opened
+	fprintf(stdout, ERROR_OPEN_FILE);
+	exit(1);
+      }
+      searchInFile(pSearchterm, file);
+      fclose(file);// Close the file on every loop
+    }
+  }
+
+  return 0;
+}

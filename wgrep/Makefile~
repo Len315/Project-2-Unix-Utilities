@@ -1,0 +1,4 @@
+wgrep: wgrep.c
+	gcc -o wgrep wgrep.c -Wall
+clean:
+	rm -f wgrep
